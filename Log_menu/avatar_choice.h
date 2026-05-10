@@ -29,18 +29,16 @@ signals:
     void transfer_selected_avatar(const QString& selectedAvatar); //Отправка сигнала с путём выбранной авы
 public:
     explicit Avatar_choice(QWidget *parent = nullptr);
-    //std::pair<QString, QString> getTheSelectedAvatarFromJSON();
     QString getTheSelectedAvatarFromJSON();
-    User& currentUser_;
     void installExistingPhoto();
     void call_installExistingPhoto();
     void installPlaceholdersOnEmptyQLabels();
-    //void fillTheFolderWithStubs();
     void onAvatarPBSclicked(QLabel*); // Установка фотографии на аву или загрузка новой
     void saveInJSON(const QString& path,  const QString& type, const QString& number);
     ~Avatar_choice();
 private:
     Ui::Avatar_choice *ui;
+    User& currentUser_;
     QString username_;
     QString userDirPath_;
     QString userPhotoPath_;

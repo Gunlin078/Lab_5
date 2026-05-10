@@ -62,8 +62,7 @@ void Avatar_choice::saveInJSON(const QString& path,  const QString& type, const 
     if (type == "Avatar"){
         j["Avatar"]["label_"+number.toStdString()]=path.toStdString();}
     else if (type == "Selected avatar"){
-        j["Selected avatar"] = path.toStdString();
-        j["Selected number"] = number.toStdString();}
+        j["Selected avatar"] = path.toStdString();}
     else{
         qDebug() << "Wrong type";}
     std::ofstream o(jsonPath);
@@ -74,7 +73,7 @@ void Avatar_choice::saveInJSON(const QString& path,  const QString& type, const 
 }
 
 QString Avatar_choice::getTheSelectedAvatarFromJSON(){
-    fs::path jsonPath = userDirPath_.toStdString() / fs::path("userdata.json"); //
+    fs::path jsonPath = userDirPath_.toStdString() / fs::path("userdata.json");
     std::ifstream i(jsonPath);
     json j;
     if (i.is_open() and fs::file_size(jsonPath) > 0){
@@ -98,7 +97,6 @@ void Avatar_choice::installExistingPhoto(){
         else deliter.execute(userPhotoPath_, "all");
     }
 
-    //QString selectedAvatar = getTheSelectedAvatarFromJSON();
     QLabel* label = this->findChild<QLabel*>(selectAvatar_);
     if (label){
         QString style = label->styleSheet();
@@ -128,7 +126,6 @@ short userImagesCount(const QString& userDirPath){
 }
 
 void Avatar_choice::onAvatarPBSclicked(QLabel *selectLabel){
-    qDebug()<<selectLabel->objectName();
     if(selectLabel == nullptr) return;
     if(download_mode_ == true){
         QDir dir(QDir::currentPath());
@@ -146,7 +143,9 @@ void Avatar_choice::onAvatarPBSclicked(QLabel *selectLabel){
             deliter.execute(userPhotoPath_, number);
             uploader.execute(path, number);
             saveInJSON(path, "Avatar", number);
-            if(selectLabel->objectName() == selectAvatar_)  {emit transfer_selected_avatar(STUB_STYLE);}
+            if(selectLabel->objectName() == selectAvatar_)  {
+                emit transfer_selected_avatar(STUB_STYLE);
+                saveInJSON(STUB_PATH, "Selected avatar", number);}
         }
     }
     if(download_mode_ == false){
@@ -157,8 +156,6 @@ void Avatar_choice::onAvatarPBSclicked(QLabel *selectLabel){
             ui->label_4->setStyleSheet("");
             deliter.execute(userPhotoPath_, "all");
             installPlaceholdersOnEmptyQLabels();
-            //installExistingPhoto();
-            //emit transfer_selected_avatar(selectLabel->styleSheet());
             emit transfer_selected_avatar(STUB_STYLE);
             QMessageBox::warning(this, "Данные стёрты", "А не надо было лезть куда не надо");
             return;
