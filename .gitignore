@@ -1,0 +1,27 @@
+# Папки сборки (самое главное)
+build/
+build-*/
+Debug/
+Release/
+.qtc/
+
+# Временные файлы Qt
+*.user
+*.autosave
+*.creator.user*
+
+# Объектные файлы
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+
+# Сгенерированные Qt-файлы
+moc_*
+ui_*
+qrc_*.cpp
+
+# CMake (если используете)
+CMakeLists.txt.user
+CMakeUserPresets.json
