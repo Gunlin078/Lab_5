@@ -15,6 +15,7 @@ Avatar_choice::Avatar_choice(QWidget *parent)
     , username_(currentUser_.getUsername())
     , userDirPath_(currentUser_.getPath())
     , userPhotoPath_(userDirPath_+"/photos")
+    , selectAvatar_(getTheSelectedAvatarFromJSON())
 {
     ui->setupUi(this);
     QObject::connect(ui->photo_upload_PB, &QPushButton::clicked, [this]() {download_mode_ = true;
@@ -61,7 +62,8 @@ void Avatar_choice::saveInJSON(const QString& path,  const QString& type, const 
     if (type == "Avatar"){
         j["Avatar"]["label_"+number.toStdString()]=path.toStdString();}
     else if (type == "Selected avatar"){
-        j["Selected avatar"] = path.toStdString();}
+        j["Selected avatar"] = path.toStdString();
+        j["Selected number"] = number.toStdString();}
     else{
         qDebug() << "Wrong type";}
     std::ofstream o(jsonPath);
@@ -72,13 +74,12 @@ void Avatar_choice::saveInJSON(const QString& path,  const QString& type, const 
 }
 
 QString Avatar_choice::getTheSelectedAvatarFromJSON(){
-    fs::path jsonPath = userDirPath_.toStdString() / fs::path("userdata.json");
+    fs::path jsonPath = userDirPath_.toStdString() / fs::path("userdata.json"); //
     std::ifstream i(jsonPath);
     json j;
     if (i.is_open() and fs::file_size(jsonPath) > 0){
         i>>j;
         i.close();
-
         if (j.contains("Selected avatar"))   return QString::fromStdString(j["Selected avatar"]);
     }
     return QString();
@@ -97,23 +98,14 @@ void Avatar_choice::installExistingPhoto(){
         else deliter.execute(userPhotoPath_, "all");
     }
 
-    QString selectedAvatar = getTheSelectedAvatarFromJSON();
-    QLabel* label = this->findChild<QLabel*>(selectedAvatar);
+    //QString selectedAvatar = getTheSelectedAvatarFromJSON();
+    QLabel* label = this->findChild<QLabel*>(selectAvatar_);
     if (label){
         QString style = label->styleSheet();
-        emit transfer_selected_avatar(style);
-        qDebug()<<style<<" srazu";}
+        emit transfer_selected_avatar(style);}
 }
 
 void Avatar_choice::call_installExistingPhoto(){installExistingPhoto();}
-
-/*
-void Avatar_choice::fillTheFolderWithStubs(){
-    if (ui->label_1->styleSheet() == ""){ui->label_1->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "1");}
-    if (ui->label_2->styleSheet() == ""){ui->label_2->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "2");}
-    if (ui->label_3->styleSheet() == ""){ui->label_3->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "3");}
-    if (ui->label_4->styleSheet() == ""){ui->label_4->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "4");}
-}*/
 
 void Avatar_choice::installPlaceholdersOnEmptyQLabels(){
     if (ui->label_1->styleSheet() == ""){ui->label_1->setStyleSheet(STUB_STYLE);}
@@ -136,6 +128,7 @@ short userImagesCount(const QString& userDirPath){
 }
 
 void Avatar_choice::onAvatarPBSclicked(QLabel *selectLabel){
+    qDebug()<<selectLabel->objectName();
     if(selectLabel == nullptr) return;
     if(download_mode_ == true){
         QDir dir(QDir::currentPath());
@@ -153,6 +146,7 @@ void Avatar_choice::onAvatarPBSclicked(QLabel *selectLabel){
             deliter.execute(userPhotoPath_, number);
             uploader.execute(path, number);
             saveInJSON(path, "Avatar", number);
+            if(selectLabel->objectName() == selectAvatar_)  {emit transfer_selected_avatar(STUB_STYLE);}
         }
     }
     if(download_mode_ == false){
@@ -162,19 +156,20 @@ void Avatar_choice::onAvatarPBSclicked(QLabel *selectLabel){
             ui->label_3->setStyleSheet("");
             ui->label_4->setStyleSheet("");
             deliter.execute(userPhotoPath_, "all");
-            //fillTheFolderWithStubs();
             installPlaceholdersOnEmptyQLabels();
-            installExistingPhoto();
-            emit transfer_selected_avatar(selectLabel->styleSheet());
+            //installExistingPhoto();
+            //emit transfer_selected_avatar(selectLabel->styleSheet());
+            emit transfer_selected_avatar(STUB_STYLE);
             QMessageBox::warning(this, "Данные стёрты", "А не надо было лезть куда не надо");
             return;
         }
+        selectAvatar_ = selectLabel->objectName();
         emit transfer_selected_avatar(selectLabel->styleSheet());
-        qDebug()<<selectLabel->styleSheet()<<" tik";
         saveInJSON(selectLabel->objectName(), "Selected avatar", 0);
     }
 }
 /*
+            qDebug()<<" tik";
             ui->label_1->setStyleSheet(STUB_STYLE);
             ui->label_2->setStyleSheet(STUB_STYLE);
             ui->label_3->setStyleSheet(STUB_STYLE);
@@ -223,5 +218,25 @@ QString getCurrentTime(){
     QDateTime now = QDateTime::currentDateTime();
     QString currentTime = now.toString("yyyy-MM-dd-HH-mm-ss");
     return currentTime;
+}
+
+std::pair<QString, QString> Avatar_choice::getTheSelectedAvatarFromJSON(){
+    fs::path jsonPath = userDirPath_.toStdString() / fs::path("userdata.json");
+    std::ifstream i(jsonPath);
+    json j;
+    if (i.is_open() and fs::file_size(jsonPath) > 0){
+        i>>j;
+        i.close();
+        if (j.contains("Selected avatar") and j.contains("Selected number")){
+            return {QString::fromStdString(j["Selected avatar"]),
+                    QString::fromStdString(j["Selected number"])};}
+    }
+}
+
+void Avatar_choice::fillTheFolderWithStubs(){
+    if (ui->label_1->styleSheet() == ""){ui->label_1->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "1");}
+    if (ui->label_2->styleSheet() == ""){ui->label_2->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "2");}
+    if (ui->label_3->styleSheet() == ""){ui->label_3->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "3");}
+    if (ui->label_4->styleSheet() == ""){ui->label_4->setStyleSheet(STUB_STYLE); uploader.execute(STUB_PATH, "4");}
 }
 */
