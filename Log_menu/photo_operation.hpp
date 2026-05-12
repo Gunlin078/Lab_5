@@ -32,6 +32,19 @@ protected:
 
 class UploadPhoto: public PhotoOperation{
 public:
+    virtual void execute(const QString& photoPath, const QString& number) override{
+        if (isImage(photoPath.toStdString())){}
+
+        if (!isAllStorages()) return;
+        if (number.isNull())  qDebug() << "The number doesn't exist";
+
+        QString imageTitle = user_.getPath() + "/photos/" + getCurrentTime() + "-No" + number + ".png";
+        QImage  image(photoPath);
+
+        if (!image.isNull()) image.save(imageTitle);
+        else qDebug()<< "Error";
+    }
+private:
     QString getCurrentTime(){
         QDateTime now = QDateTime::currentDateTime();
         QString currentTime = now.toString("yyyy-MM-dd-HH-mm-ss");
@@ -49,18 +62,6 @@ public:
 
         if (fs::exists(photoDir)) return true;
         else return false;
-    }
-    virtual void execute(const QString& photoPath, const QString& number) override{
-        if (isImage(photoPath.toStdString())){}
-
-        if (!isAllStorages()) return;
-        if (number.isNull())  qDebug() << "The number doesn't exist";
-
-        QString imageTitle = user_.getPath() + "/photos/" + getCurrentTime() + "-No" + number + ".png";
-        QImage  image(photoPath);
-
-        if (!image.isNull()) image.save(imageTitle);
-        else qDebug()<< "Error";
     }
 };
 

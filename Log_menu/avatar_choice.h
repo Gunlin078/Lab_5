@@ -30,6 +30,7 @@ signals:
 public:
     explicit Avatar_choice(QWidget *parent = nullptr);
     QString getTheSelectedAvatarFromJSON();
+    void labelCleaning(QLabel *label);
     void installExistingPhoto();
     void call_installExistingPhoto();
     void installPlaceholdersOnEmptyQLabels();

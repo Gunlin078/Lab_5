@@ -26,10 +26,14 @@ Avatar_choice::Avatar_choice(QWidget *parent)
     ui->photo_change_PB->hide();
     ui->photo_upload_PB->show();
     });
-    QObject::connect(ui->photo_change1_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_1);});
-    QObject::connect(ui->photo_change2_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_2);});
-    QObject::connect(ui->photo_change3_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_3);});
-    QObject::connect(ui->photo_change4_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_4);});
+    QObject::connect(ui->photo_1_change_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_1);});
+    QObject::connect(ui->photo_2_change_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_2);});
+    QObject::connect(ui->photo_3_change_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_3);});
+    QObject::connect(ui->photo_4_change_PB, &QPushButton::clicked, [this](){onAvatarPBSclicked(ui->label_4);});
+    QObject::connect(ui->photo_1_clean_PB, &QPushButton::clicked, [this](){labelCleaning(ui->label_1);});
+    QObject::connect(ui->photo_2_clean_PB, &QPushButton::clicked, [this](){labelCleaning(ui->label_2);});
+    QObject::connect(ui->photo_3_clean_PB, &QPushButton::clicked, [this](){labelCleaning(ui->label_3);});
+    QObject::connect(ui->photo_4_clean_PB, &QPushButton::clicked, [this](){labelCleaning(ui->label_4);});
     QObject::connect(ui->photo_clean_PB,   &QPushButton::clicked, [this]()
                      {deliter.execute(userPhotoPath_, "all");
                      for (auto lb : this->findChildren<QLabel*>()) {lb->setStyleSheet("");
@@ -44,6 +48,19 @@ Avatar_choice::Avatar_choice(QWidget *parent)
 Avatar_choice::~Avatar_choice()
 {
     delete ui;
+}
+
+void Avatar_choice::labelCleaning(QLabel *label){
+    if (label){
+        if (label->styleSheet() != STUB_STYLE){
+            QString number = label->objectName().right(1);
+            deliter.execute(userPhotoPath_, number);
+            label->setStyleSheet(STUB_STYLE);
+            if(label->objectName() == selectAvatar_)  {
+                emit transfer_selected_avatar(STUB_STYLE);
+                saveInJSON(STUB_PATH, "Selected avatar", "0");}
+        }
+    }
 }
 
 void Avatar_choice::saveInJSON(const QString& path,  const QString& type, const QString& number){
@@ -131,7 +148,7 @@ void Avatar_choice::onAvatarPBSclicked(QLabel *selectLabel){
         QDir dir(QDir::currentPath());
         QString PhotoPath = dir.filePath(":/resourses/photos");
 
-        UserDataFileDialog dialog (PhotoPath, this);
+        UserDataFileDialog dialog(PhotoPath, this);
         dialog.setFixedSize(300,320);
         dialog.move(800,300);
         if (dialog.exec() == QDialog::Accepted){
